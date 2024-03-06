@@ -40,3 +40,25 @@ export const Section = (anchor: Locator | Page, options: any) => {
     LinkButton: (text: string) => Locator;
   };
 };
+
+export const Paragraph = (anchor: Locator | Page, options: any) => {
+  let locator: Locator;
+
+  locator = anchor.locator(`p:has-text("${options.title}")`);
+
+  if (options.buttons) {
+    options.buttons.forEach((element) => {
+      locator = locator.filter({
+        has: ToggleButton(anchor, element),
+      });
+    });
+  }
+
+  locator["ToggleButton"] = (text: string): Locator => {
+    return ToggleButton(locator, text);
+  };
+
+  return locator as Locator & {
+    ToggleButton: (text: string) => Locator;
+  };
+};
