@@ -1,9 +1,47 @@
-const playwright = require("playwright");
+import playwright from "playwright";
 import { test, Page, Browser, BrowserContext } from "@playwright/test";
 import { Button } from "../components/Button";
 import { NavItem } from "../components/NavItem";
+import { setupBrowserPage } from "../setup/setup";
 
-test("All navigation left bar items are working as expected", async ({}) => {
+const navigatePages = async (play: Page, pages: Array<string>) => {
+  for (const element of pages) {
+    await NavItem(play, element).click();
+    await play.waitForURL(
+      `**/${element.replace(" ", "-").toLowerCase()}/overview`
+    );
+    if (element !== "Core") {
+      await play.getByRole("link", { name: "examples" }).click();
+      await play.waitForURL(
+        `**/${element.replace(" ", "-").toLowerCase()}/examples`
+      );
+    }
+  }
+};
+
+test("All navigation left bar items are working as expected - abstracted", async ({}) => {
+  const pages = [
+    "Autocomplete",
+    "Badge",
+    "Bottom Sheet",
+    "Button",
+    "Button toggle",
+    "Card",
+    "Checkbox",
+    "Chips",
+    "Core",
+    "Datepicker",
+    "Dialog",
+    "Divider",
+    "Form field",
+  ];
+
+  const play = await setupBrowserPage();
+
+  await navigatePages(play, pages);
+});
+
+test("All navigation left bar items are working as expected - step by step", async ({}) => {
   const browser: Browser = await playwright.chromium.launch();
   const context: BrowserContext = await browser.newContext();
   const play: Page = await context.newPage();
