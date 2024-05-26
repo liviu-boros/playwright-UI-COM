@@ -1,18 +1,17 @@
-const playwright = require("playwright");
+import playwright from "playwright";
 import { test, expect, Page, Browser, BrowserContext } from "@playwright/test";
-import { Button } from "../components/Button";
+import { Button, ToggleButton } from "../components/Button";
 import { NavItem } from "../components/NavItem";
-import { Paragraph } from "../components/Sections";
+import { Paragraph } from "../components/Frames";
 
-let play: Page;
-
-test.beforeEach(async ({}) => {
+test("Toggle buttons are working as expected - step by step", async ({}) => {
   const browser: Browser = await playwright.chromium.launch();
   const context: BrowserContext = await browser.newContext();
-  play = await context.newPage();
+  const play: Page = await context.newPage();
 
   await play.goto("https://v14.material.angular.io/components/categories");
   await play.waitForURL("**/categories");
+
   await Button(play, "Ok, Got it").click();
 
   await NavItem(play, "Button toggle").click();
@@ -20,62 +19,51 @@ test.beforeEach(async ({}) => {
 
   await play.getByRole("link", { name: "examples" }).click();
   await play.waitForURL("**/button-toggle/examples");
-});
 
-test("All Default appearance toggle buttons are working as expected", async ({}) => {
-  const DefaultParagraph = Paragraph(play, {
-    title: "Default appearance",
-    buttons: ["Bold", "Italic", "Underline"],
-  });
-  await expect(DefaultParagraph).toBeAttached();
+  const Default = Paragraph(play, "Default appearance");
+  const Legacy = Paragraph(play, "Legacy appearance");
+  await expect(Default).toBeAttached();
+  await expect(Legacy).toBeAttached();
 
-  await DefaultParagraph.ToggleButton("Bold").click();
-  await expect(DefaultParagraph.ToggleButton("Bold")).toHaveClass(
+  await Default.locator(ToggleButton(play, "Bold")).click();
+  await expect(Default.locator(ToggleButton(play, "Bold"))).toHaveClass(
     /mat-button-toggle-checked/
   );
 
-  await DefaultParagraph.ToggleButton("Italic").click();
-  await expect(DefaultParagraph.ToggleButton("Bold")).not.toHaveClass(
+  await Default.locator(ToggleButton(play, "Italic")).click();
+  await expect(Default.locator(ToggleButton(play, "Bold"))).not.toHaveClass(
     /mat-button-toggle-checked/
   );
-  await expect(DefaultParagraph.ToggleButton("Italic")).toHaveClass(
-    /mat-button-toggle-checked/
-  );
-
-  await DefaultParagraph.ToggleButton("Underline").click();
-  await expect(DefaultParagraph.ToggleButton("Italic")).not.toHaveClass(
-    /mat-button-toggle-checked/
-  );
-  await expect(DefaultParagraph.ToggleButton("Underline")).toHaveClass(
-    /mat-button-toggle-checked/
-  );
-});
-
-test("All Legacy appearance toggle buttons are working as expected", async ({}) => {
-  const LegacyParagraph = Paragraph(play, {
-    title: "Legacy appearance",
-    buttons: ["Bold", "Italic", "Underline"],
-  });
-  await expect(LegacyParagraph).toBeAttached();
-
-  await LegacyParagraph.ToggleButton("Bold").click();
-  await expect(LegacyParagraph.ToggleButton("Bold")).toHaveClass(
+  await expect(Default.locator(ToggleButton(play, "Italic"))).toHaveClass(
     /mat-button-toggle-checked/
   );
 
-  await LegacyParagraph.ToggleButton("Italic").click();
-  await expect(LegacyParagraph.ToggleButton("Bold")).not.toHaveClass(
+  await Default.locator(ToggleButton(play, "Underline")).click();
+  await expect(Default.locator(ToggleButton(play, "Italic"))).not.toHaveClass(
     /mat-button-toggle-checked/
   );
-  await expect(LegacyParagraph.ToggleButton("Italic")).toHaveClass(
+  await expect(Default.locator(ToggleButton(play, "Underline"))).toHaveClass(
     /mat-button-toggle-checked/
   );
 
-  await LegacyParagraph.ToggleButton("Underline").click();
-  await expect(LegacyParagraph.ToggleButton("Italic")).not.toHaveClass(
+  await Legacy.locator(ToggleButton(play, "Bold")).click();
+  await expect(Legacy.locator(ToggleButton(play, "Bold"))).toHaveClass(
     /mat-button-toggle-checked/
   );
-  await expect(LegacyParagraph.ToggleButton("Underline")).toHaveClass(
+
+  await Legacy.locator(ToggleButton(play, "Italic")).click();
+  await expect(Legacy.locator(ToggleButton(play, "Bold"))).not.toHaveClass(
+    /mat-button-toggle-checked/
+  );
+  await expect(Legacy.locator(ToggleButton(play, "Italic"))).toHaveClass(
+    /mat-button-toggle-checked/
+  );
+
+  await Legacy.locator(ToggleButton(play, "Underline")).click();
+  await expect(Legacy.locator(ToggleButton(play, "Italic"))).not.toHaveClass(
+    /mat-button-toggle-checked/
+  );
+  await expect(Legacy.locator(ToggleButton(play, "Underline"))).toHaveClass(
     /mat-button-toggle-checked/
   );
 });
